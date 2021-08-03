@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        Es6
+    </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        input {
+            flex-grow: 2;
+            border: none;
+
+        }
+
+        #videos {
+            display: grid;
+            grid-template-columns: repeat(4, 22%);
+            grid-gap: 25px;
+            margin: 20px;
+            
+        }
+        #videos div {
+            margin: 20px;
+            column-gap: 10px;
+        }
+
+        #form {
+
+            display: flex;
+            flex-direction: row;
+            border: 1px solid rgb(199, 197, 197);
+            width: 50%;
+            height: 30px;
+            margin-top: 25px;
+            margin-left: 180px;
+        }
+
+        #nav_head {
+            display: flex;
+            border-bottom: 1px solid rgb(223, 220, 220);
+        }
+
+        img {
+            width: 95px;
+            height: 75px;
+        }
+
+       button i {
+            width: 100px;
+        }
+        #icon {
+            margin-top: 35px;
+            margin-right: 20px;
+            margin-left: 20px;
+        }
+        iframe {
+            column-gap: 10px;
+        }
+        span {
+            margin-top: 30px;
+            margin-left: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="nav_head">
+        <i id = "icon" class="fa fa-align-justify"></i>
+        <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnrhRDQ2MpyFas7A-QuePdoMMsVqYlrdILTrz7uLPHyj8IdWYLMaZVrzf-ixmlH4CJ_1s&usqp=CAU">
+        <form id="form">
+            <input type="text" id="query" placeholder="Search">
+            <button onclick="getDetails(event)"><i class="fa fa-search"></i></button>
+        </form>
+        <span class="material-icons">video_call</span>
+    </div>
+    <h2 style="width: 100px; height:30px;border: 1px solid black;background-color: rgb(211, 209, 209);">Popular</h2>
+    <div id="default_videos"></div>
+    <h2 style="width: 200px; height:30px;border: 1px solid black;background-color: rgb(211, 209, 209);">Search Result</h2>
+    <div id="videos"></div>
+</body>
+
+</html>
+<script>
+    let videos_div = document.getElementById("videos")
+    async function getDetails(e) {
+        e.preventDefault()
+        try {
+            videos_div.innerHTML = null;
+            let q = document.getElementById("query").value
+            let res = await fetch(`https://youtube.googleapis.com/youtube/v3/search?q=${q}&key=AIzaSyBd6rvC-ncSUxE60OIZgT5yZuy-THbp_iQ&maxResults=20`
+            );
+            let data = await res.json();
+            console.log(data);
+
+            let { items } = data;
+            items = items.filter((el) => {
+                return el.id.videoId != undefined;
+            });
+
+            items.forEach(({ id: { videoId } }) => {
+                let div = document.createElement("div");
+                div.setAttribute("class", "videos_show")
+                div.innerHTML = `<iframe width="280" height="315" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+
+                videos_div.appendChild(div)
+            })
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async function default_videos() {
+        const resd = await fetch("https://youtube.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=in&videoCategoryId=17&key=AIzaSyCZNZPGfVxgOsDCXAQC84erLCHpv8ahvSk")
+        const datad = await resd.json();
+        
+        datad.items.forEach(({ id }) => {
+            const default_div = document.getElementById("default_videos");
+            const default_frame = document.createElement("iframe");
+            default_frame.setAttribute("width", "250");
+            default_frame.setAttribute("height", "150")
+            default_frame.setAttribute("src", `https://www.youtube.com/embed/${id}`)
+            default_div.append(default_frame)
+        })
+    }
+default_videos() 
+</script>
